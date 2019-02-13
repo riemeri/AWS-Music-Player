@@ -1,0 +1,15 @@
+{
+  "name": "aws-music-player",
+  "version": "1.0.0",
+  "description": "A web music player powered by AWS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-react-app": "^3.1.2"
+  }
+}
