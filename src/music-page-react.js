@@ -12,12 +12,12 @@ function getMusicList() {
 			url: Url,
 			type:"GET",
 			success: function(result) {
-				console.log("GET Resonse: ")
-				console.log(result);
+				//console.log("GET Resonse: ")
+				//console.log(result);
 				resolve(result);
 			},
 			error: function(error){
-				console.log(`Error ${error}`);
+				console.log(`GET Error ${error}`);
 				reject(error);
 			}
 		});
@@ -48,7 +48,8 @@ function updateMusicTable(artistObject) {
 		return <ArtistEntry artist={artist[0]} albumNames={artist[1].albumNames} albums={artist[1].albums}/>;
 	});
 
-	ReactDOM.render(music, categoryList);
+	var artistList = document.getElementById('artist-list');
+	ReactDOM.render(music, artistList);
 }
 
 
@@ -85,14 +86,28 @@ function ArtistEntry(props) {
 function showAlbum(albumName, album) {
 	console.log('Album: ');
 	console.log(album);
+	var musicPlayer = document.getElementById("music-player");
+
 	const songList = album.map((song) => {
+		function playSong() {
+			getSongUrl(song.path).then(function(url) {
+				musicPlayer.src = url;
+				musicPlayer.load();
+				musicPlayer.play();
+			})
+			.catch(function(error) {
+				snackbarToast("Couldn't load file");
+				console.log(error);
+			});
+		}
+
 		console.log('Song: ' + song.title);
 		return (
-			<li className="mdl-list__item" key={song.path}>
-				<span className="mdl-list__item-primary-content">
+			<li className="list-item mdl-list__item" key={song.path}>
+				<button onClick={playSong} className="song-button mdl-button mdl-js-button mdl-js-ripple-effect">
 					<i className="material-icons mdl-list__item-icon" style={{marginRight: '18px'}}>library_music</i>
 					{song.title}
-				</span>
+				</button>
 			</li>
 		)
 	});
@@ -106,8 +121,28 @@ function showAlbum(albumName, album) {
 		</div>
 	);
 
-	var albumDisplay = document.getElementById('album-display');
-	ReactDOM.render(albumElement, albumDisplay);
+	var songDisplay = document.getElementById('song-display');
+	ReactDOM.render(albumElement, songDisplay);
+}
+
+function getSongUrl(songPath) {
+	var songUrl = Url + '/' + songPath;
+	var promise1 = new Promise(function (resolve, reject) {
+		$.ajax({
+			url: songUrl,
+			type:"GET",
+			success: function(result) {
+				console.log("GET Resonse: ")
+				console.log(result);
+				resolve(result);
+			},
+			error: function(error){
+				console.log(`Error ${error}`);
+				reject(error);
+			}
+		});
+	});
+	return promise1;
 }
 
 

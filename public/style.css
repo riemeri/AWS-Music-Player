@@ -1,3 +1,16 @@
+#audio-playback {
+	position: absolute;
+    bottom: 28px;
+    width: auto;
+    right: 16px;
+    left: 16px;
+}
+
+#music-player {
+	width: 900px;
+    max-width: 100%;
+}
+
 .body-main {
 	margin-top: -39.5vh;
 	flex-shrink: 0;
@@ -42,6 +55,10 @@
     overflow: visible;
 }
 
+.list-item {
+	padding: 4px 16px;
+	min-height: 42px;
+}
 
 .body-layout {
 	padding: 40px 28px;
@@ -99,8 +116,20 @@
     margin-left: 0;
     margin-right: auto;
 }
+
 .song-list {
 	width: 70%;
+}
+
+#song-display {
+	position: inherit;
+    margin-bottom: 45px;
+}
+
+.song-button {
+	text-transform: inherit;
+	text-align: -webkit-left;
+	height: 34px;
 }
 
 .title-label {

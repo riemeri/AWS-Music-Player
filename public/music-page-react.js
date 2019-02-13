@@ -11,12 +11,12 @@ function getMusicList() {
 			url: Url,
 			type: "GET",
 			success: function success(result) {
-				console.log("GET Resonse: ");
-				console.log(result);
+				//console.log("GET Resonse: ")
+				//console.log(result);
 				resolve(result);
 			},
 			error: function error(_error) {
-				console.log("Error " + _error);
+				console.log("GET Error " + _error);
 				reject(_error);
 			}
 		});
@@ -46,7 +46,8 @@ function updateMusicTable(artistObject) {
 		return React.createElement(ArtistEntry, { artist: artist[0], albumNames: artist[1].albumNames, albums: artist[1].albums });
 	});
 
-	ReactDOM.render(music, categoryList);
+	var artistList = document.getElementById('artist-list');
+	ReactDOM.render(music, artistList);
 }
 
 manualUpdate();
@@ -93,14 +94,27 @@ function ArtistEntry(props) {
 function showAlbum(albumName, album) {
 	console.log('Album: ');
 	console.log(album);
+	var musicPlayer = document.getElementById("music-player");
+
 	var songList = album.map(function (song) {
+		function playSong() {
+			getSongUrl(song.path).then(function (url) {
+				musicPlayer.src = url;
+				musicPlayer.load();
+				musicPlayer.play();
+			}).catch(function (error) {
+				snackbarToast("Couldn't load file");
+				console.log(error);
+			});
+		}
+
 		console.log('Song: ' + song.title);
 		return React.createElement(
 			"li",
-			{ className: "mdl-list__item", key: song.path },
+			{ className: "list-item mdl-list__item", key: song.path },
 			React.createElement(
-				"span",
-				{ className: "mdl-list__item-primary-content" },
+				"button",
+				{ onClick: playSong, className: "song-button mdl-button mdl-js-button mdl-js-ripple-effect" },
 				React.createElement(
 					"i",
 					{ className: "material-icons mdl-list__item-icon", style: { marginRight: '18px' } },
@@ -126,8 +140,28 @@ function showAlbum(albumName, album) {
 		)
 	);
 
-	var albumDisplay = document.getElementById('album-display');
-	ReactDOM.render(albumElement, albumDisplay);
+	var songDisplay = document.getElementById('song-display');
+	ReactDOM.render(albumElement, songDisplay);
+}
+
+function getSongUrl(songPath) {
+	var songUrl = Url + '/' + songPath;
+	var promise1 = new Promise(function (resolve, reject) {
+		$.ajax({
+			url: songUrl,
+			type: "GET",
+			success: function success(result) {
+				console.log("GET Resonse: ");
+				console.log(result);
+				resolve(result);
+			},
+			error: function error(_error2) {
+				console.log("Error " + _error2);
+				reject(_error2);
+			}
+		});
+	});
+	return promise1;
 }
 
 function snackbarToast(toast) {
