@@ -1,8 +1,13 @@
 
 var Url = "http://ec2-54-175-173-62.compute-1.amazonaws.com:3000";
 
-var currentArtist = void 0;
+var currentArtist = null;
 var currentAlbum = void 0;
+var currentMusicList = null;
+var musicPlayer = document.getElementById("music-player");
+var musicLabel = document.getElementById("music-label");
+var playbackSlider = document.getElementById("playback-slider");
+var clicked = false;
 
 function getMusicList() {
 
@@ -27,6 +32,7 @@ function getMusicList() {
 function manualUpdate() {
 	getMusicList().then(function (musicList) {
 		if (musicList != null) {
+			currentMusicList = musicList;
 			updateMusicTable(musicList);
 		}
 	}).catch(function (error) {
@@ -34,14 +40,20 @@ function manualUpdate() {
 	});
 }
 
+function quickUpdate() {
+	if (currentMusicList != null) {
+		updateMusicTable(currentMusicList);
+	} else {
+		snackbarToast("No current music list");
+	}
+}
+
 function updateMusicTable(artistObject) {
 	var artistArray = Object.entries(artistObject);
-	console.log(artistArray);
-
-	for (var artist in artistObject) {
-		console.log(artistObject[artist]);
+	//console.log(artistArray);
+	if (currentArtist == null) {
+		currentArtist = artistArray[0][0];
 	}
-
 	var music = artistArray.map(function (artist) {
 		return React.createElement(ArtistEntry, { artist: artist[0], albumNames: artist[1].albumNames, albums: artist[1].albums });
 	});
@@ -55,52 +67,65 @@ manualUpdate();
 function ArtistEntry(props) {
 	function selectArist() {
 		currentArtist = props.artist;
-		//manualUpdate();
+		quickUpdate();
 	}
-	console.log(props.albumNames);
+	//console.log(props.albumNames);
 
 	var albumList = props.albumNames.map(function (album) {
 		function doShowAlbum() {
 			currentAlbum = album;
-			showAlbum(album, props.albums[album]);
+			showAlbum(album, props.albums[album], props.artist);
 		}
 		return React.createElement(
 			"li",
-			{ key: album },
+			{ className: "list-item mdl-list__item", key: album },
 			React.createElement(
-				"a",
-				{ href: "#", onClick: doShowAlbum },
+				"button",
+				{ onClick: doShowAlbum, className: "album-button mdl-button mdl-js-button mdl-js-ripple-effect" },
 				album
 			)
 		);
 	});
 
-	return React.createElement(
-		"div",
-		{ onClick: selectArist, className: "cat-card mdl-card mdl-shadow--2dp", key: props.artist },
-		React.createElement(
-			"h5",
-			{ style: { marginLeft: '14px' } },
-			props.artist
-		),
-		React.createElement(
-			"ul",
-			null,
-			albumList
-		)
-	);
+	if (props.artist == currentArtist) {
+		return React.createElement(
+			"div",
+			{ className: "cat-card mdl-card mdl-shadow--2dp", key: props.artist },
+			React.createElement(
+				"h5",
+				{ style: { marginLeft: '14px' } },
+				props.artist
+			),
+			React.createElement(
+				"div",
+				{ className: "mdl-card__actions mdl-card--border" },
+				React.createElement(
+					"ul",
+					{ className: "album-list" },
+					albumList
+				)
+			)
+		);
+	} else {
+		return React.createElement(
+			"div",
+			{ onClick: selectArist, className: "cat-card mdl-card mdl-shadow--2dp", style: { cursor: 'pointer' }, key: props.artist },
+			React.createElement(
+				"h5",
+				{ style: { margin: '19px 14px' } },
+				props.artist
+			)
+		);
+	}
 }
 
-function showAlbum(albumName, album) {
-	console.log('Album: ');
-	console.log(album);
-	var musicPlayer = document.getElementById("music-player");
-
+function showAlbum(albumName, album, artist) {
 	var songList = album.map(function (song) {
 		function playSong() {
 			getSongUrl(song.path).then(function (url) {
 				musicPlayer.src = url;
 				musicPlayer.load();
+				musicLabel.innerHTML = song.title;
 				musicPlayer.play();
 			}).catch(function (error) {
 				snackbarToast("Couldn't load file");
@@ -108,7 +133,6 @@ function showAlbum(albumName, album) {
 			});
 		}
 
-		console.log('Song: ' + song.title);
 		return React.createElement(
 			"li",
 			{ className: "list-item mdl-list__item", key: song.path },
@@ -131,11 +155,11 @@ function showAlbum(albumName, album) {
 		React.createElement(
 			"span",
 			{ className: "mdl-card__title-text" },
-			albumName
+			albumName + " - " + artist
 		),
 		React.createElement(
 			"ul",
-			{ className: "song-list mdl-list" },
+			{ className: "song-list mdl-list mdl-card__actions mdl-card--border" },
 			songList
 		)
 	);
@@ -151,8 +175,6 @@ function getSongUrl(songPath) {
 			url: songUrl,
 			type: "GET",
 			success: function success(result) {
-				console.log("GET Resonse: ");
-				console.log(result);
 				resolve(result);
 			},
 			error: function error(_error2) {
@@ -163,6 +185,36 @@ function getSongUrl(songPath) {
 	});
 	return promise1;
 }
+
+//Custom playback slider stuff
+/*musicPlayer.ontimeupdate = function() {updateSlider()};
+
+function updateSlider() {
+	if (clicked == false) {
+		playbackSlider.MaterialSlider.change(musicPlayer.currentTime);
+	}
+}
+
+musicPlayer.ondurationchange = function() {
+	playbackSlider.max = musicPlayer.duration;
+	snackbarToast("Duration: " + musicPlayer.duration);
+};
+
+playbackSlider.addEventListener('change', (ev) => {
+	musicPlayer.currentTime = playbackSlider.value;
+});
+
+playbackSlider.addEventListener('seeking', (ev) => {
+	musicPlayer.currentTime = playbackSlider.value;
+});
+
+playbackSlider.addEventListener('mousedown', (ev) => {
+	clicked = true;
+});
+playbackSlider.addEventListener('mouseup', (ev) => {
+	clicked = false;
+});
+*/
 
 function snackbarToast(toast) {
 	var snackbar = document.getElementById('music-snackbar');

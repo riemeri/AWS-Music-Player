@@ -27,7 +27,7 @@
 				<span class="mdl-layout__title">Cascadia Beats</span>
 				<div class="mdl-layout-spacer"></div>
 				<nav class="mdl-navigation">
-					<a id="logout" class="mdl-navigation__link" href="#">Sign Out</a>
+					<!--<a id="logout" class="mdl-navigation__link" href="#">Sign Out</a>-->
 				</nav>
 			</div>
 		</header>
@@ -37,14 +37,19 @@
 			<div class="body-container mdl-grid">
 				<div class="list-box mdl-card mdl-cell mdl-cell--4-col mdl-color--white mdl-shadow--4dp mdl-color-text--grey-800">
 					<div class="mdl-card__title">
-						<h3 class="mdl-card__title-text">Artist List</h3>
+						<h3 class="mdl-card__title-text">Artist</h3>
 					</div>
 					<div id="artist-list" class=""></div>
 				</div>
 				<div id="album-display" class="body-content mdl-card mdl-color--white mdl-shadow--4dp content mdl-color-text--grey-800 mdl-cell mdl-cell--8-col">
-					<div id="song-display"></div>
+					<div id="song-display">
+						<span class="mdl-card__title-text">No Album Selected</span>
+					</div>
 					<div id="audio-playback">
+						<label id="music-label" for="music-player"></label>
 						<audio controls id="music-player"></audio>
+						<!--<input id="playback-slider" class="mdl-slider mdl-js-slider" 
+							type="range" min="0" max="100" value="0">-->
 					</div>
 				</div>
 			</div>
