@@ -1,5 +1,5 @@
 
-const Url = "http://ec2-54-175-173-62.compute-1.amazonaws.com:3000";
+const Url = "http://3.88.49.153:3000";
 
 
 let currentArtist = null;
@@ -10,8 +10,8 @@ let musicLabel = document.getElementById("music-label");
 let playbackSlider = document.getElementById("playback-slider");
 var clicked = false;
 
+
 function getMusicList() {
-	
 	var promise1 = new Promise(function (resolve, reject) {
 		$.ajax({
 			url: Url,
@@ -153,7 +153,13 @@ function getSongUrl(songPath) {
 			url: songUrl,
 			type:"GET",
 			success: function(result) {
-				resolve(result);
+				if (typeof result == 'string' && result.includes("Error")) {
+					snackbarToast(result);
+					reject(result);
+				}
+				else {
+					resolve(result);
+				}
 			},
 			error: function(error){
 				console.log(`Error ${error}`);
@@ -200,9 +206,3 @@ function snackbarToast(toast) {
 		message: toast
 	});
 }
-
-/*var user = firebase.auth().currentUser;
-var name, email, photoUrl, uid, emailVerified;
-var db = firebase.database();
-var storageRef = firebase.storage().ref();
-var imgElements = [];*/

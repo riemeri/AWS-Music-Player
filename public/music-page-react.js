@@ -1,5 +1,5 @@
 
-var Url = "http://ec2-54-175-173-62.compute-1.amazonaws.com:3000";
+var Url = "http://3.88.49.153:3000";
 
 var currentArtist = null;
 var currentAlbum = void 0;
@@ -10,7 +10,6 @@ var playbackSlider = document.getElementById("playback-slider");
 var clicked = false;
 
 function getMusicList() {
-
 	var promise1 = new Promise(function (resolve, reject) {
 		$.ajax({
 			url: Url,
@@ -175,7 +174,12 @@ function getSongUrl(songPath) {
 			url: songUrl,
 			type: "GET",
 			success: function success(result) {
-				resolve(result);
+				if (typeof result == 'string' && result.includes("Error")) {
+					snackbarToast(result);
+					reject(result);
+				} else {
+					resolve(result);
+				}
 			},
 			error: function error(_error2) {
 				console.log("Error " + _error2);
@@ -222,9 +226,3 @@ function snackbarToast(toast) {
 		message: toast
 	});
 }
-
-/*var user = firebase.auth().currentUser;
-var name, email, photoUrl, uid, emailVerified;
-var db = firebase.database();
-var storageRef = firebase.storage().ref();
-var imgElements = [];*/
