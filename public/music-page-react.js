@@ -1,4 +1,5 @@
 
+//Server URL
 var Url = "http://3.88.49.153:3000";
 
 var currentArtist = null;
@@ -22,6 +23,129 @@ function getMusicList() {
 			error: function error(_error) {
 				console.log("GET Error " + _error);
 				reject(_error);
+			}
+		});
+	});
+	getGenres().then(function (data) {
+		console.log("Genres: " + data);
+	});
+	getArtistOfGenre('Rock').then(function (data) {
+		console.log("Artists in genre 'Rock': ");
+		console.log(data);
+	});
+	getAlbumsOfArtist('Van Halen').then(function (data) {
+		console.log("Albums by 'Van Halen': ");
+		console.log(data);
+	});
+	getSongsOfAlbum('The Best of Both Worlds').then(function (data) {
+		console.log("Songs in 'The Best of Both Worlds': ");
+		console.log(data);
+	});
+	return promise1;
+}
+
+function getGenres() {
+	var promise1 = new Promise(function (resolve, reject) {
+		$.ajax({
+			url: Url + "/genres",
+			type: "GET",
+			success: function success(result) {
+				resolve(result);
+			},
+			error: function error(_error2) {
+				console.log("GET Error " + _error2);
+				reject(_error2);
+			}
+		});
+	});
+	return promise1;
+}
+
+function getArtistOfGenre(genre) {
+	var promise1 = new Promise(function (resolve, reject) {
+		$.ajax({
+			url: Url + "/artists/for/genre?genre=" + genre,
+			type: "GET",
+			success: function success(result) {
+				resolve(result);
+			},
+			error: function error(_error3) {
+				console.log("GET Error " + _error3);
+				reject(_error3);
+			}
+		});
+	});
+	return promise1;
+}
+
+function getAlbumsOfArtist(artist) {
+	var promise1 = new Promise(function (resolve, reject) {
+		$.ajax({
+			url: Url + "/albums/for/artist?artist=" + artist,
+			type: "GET",
+			success: function success(result) {
+				resolve(result);
+			},
+			error: function error(_error4) {
+				console.log("GET Error " + _error4);
+				reject(_error4);
+			}
+		});
+	});
+	return promise1;
+}
+
+function getSongsOfAlbum(album) {
+	var promise1 = new Promise(function (resolve, reject) {
+		$.ajax({
+			url: Url + "/songs/for/album?album=" + album,
+			type: "GET",
+			success: function success(result) {
+				resolve(result);
+			},
+			error: function error(_error5) {
+				console.log("GET Error " + _error5);
+				reject(_error5);
+			}
+		});
+	});
+	return promise1;
+}
+
+function getSong(song) {
+	var promise1 = new Promise(function (resolve, reject) {
+		$.ajax({
+			url: Url + "/song?song=" + song,
+			type: "GET",
+			success: function success(result) {
+				resolve(result);
+			},
+			error: function error(_error6) {
+				console.log("GET Error " + _error6);
+				reject(_error6);
+			}
+		});
+	});
+	return promise1;
+}
+
+function getSongUrlInAlbum(Song, Album) {
+	var promise1 = new Promise(function (resolve, reject) {
+		$.ajax({
+			url: Url + "/song/in/album",
+			type: "GET",
+			data: {
+				song: Song,
+				album: Album
+			},
+			success: function success(result) {
+				//console.log("GET Resonse: ")
+				//console.log(result);
+				resolve(result);
+			},
+			error: function error(_error7) {
+				console.log("GET Error " + _error7);
+				reject(_error7);
 			}
 		});
 	});
@@ -121,7 +245,7 @@ function ArtistEntry(props) {
 function showAlbum(albumName, album, artist) {
 	var songList = album.map(function (song) {
 		function playSong() {
-			getSongUrl(song.path).then(function (url) {
+			getSongUrlInAlbum(song.title, albumName).then(function (url) {
 				musicPlayer.src = url;
 				musicPlayer.load();
 				musicLabel.innerHTML = song.title;
@@ -181,9 +305,9 @@ function getSongUrl(songPath) {
 					resolve(result);
 				}
 			},
-			error: function error(_error2) {
-				console.log("Error " + _error2);
-				reject(_error2);
+			error: function error(_error8) {
+				console.log("Error " + _error8);
+				reject(_error8);
 			}
 		});
 	});
