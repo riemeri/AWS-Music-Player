@@ -9,6 +9,42 @@ var musicPlayer = document.getElementById("music-player");
 var musicLabel = document.getElementById("music-label");
 var playbackSlider = document.getElementById("playback-slider");
 var clicked = false;
+var curUser = null;
+
+var config = {
+	apiKey: "AIzaSyCVaFP23xk3rYL8dtrNGgWbzwxONonXpX0",
+	authDomain: "music-auth-87594.firebaseapp.com",
+	databaseURL: "https://music-auth-87594.firebaseio.com",
+	projectId: "music-auth-87594",
+	storageBucket: "music-auth-87594.appspot.com",
+	messagingSenderId: "194541755164"
+};
+firebase.initializeApp(config);
+
+//On change of auth state, get user info or return home if no one is logged in
+firebase.auth().onAuthStateChanged(function (user) {
+	if (user) {
+		curUser = user;
+		//console.log(user);
+		manualUpdate();
+	} else {
+		// No user is signed in.
+		window.location.href = "http://aws-web-hosting16.s3-website-us-east-1.amazonaws.com";
+	}
+});
+
+//Logout user (which triggers an auth state change, returning the user to the login page
+var logoutBtn = document.getElementById('logout');
+logoutBtn.addEventListener('click', function (ev) {
+	firebase.auth().signOut().then(function () {}).catch(function (err) {
+		alert('Error: ' + err.message);
+		console.log(error);
+	});
+}, false);
+
+function validateUser(user) {
+	return true;
+}
 
 function getMusicList() {
 	var promise1 = new Promise(function (resolve, reject) {
@@ -20,26 +56,21 @@ function getMusicList() {
 				//console.log(result);
 				resolve(result);
 			},
-			error: function error(_error) {
-				console.log("GET Error " + _error);
-				reject(_error);
-			}
+			error: function (_error) {
+				function error(_x) {
+					return _error.apply(this, arguments);
+				}
+
+				error.toString = function () {
+					return _error.toString();
+				};
+
+				return error;
+			}(function (error) {
+				console.log("GET Error " + error);
+				reject(error);
+			})
 		});
-	});
-	getGenres().then(function (data) {
-		console.log("Genres: " + data);
-	});
-	getArtistOfGenre('Rock').then(function (data) {
-		console.log("Artists in genre 'Rock': ");
-		console.log(data);
-	});
-	getAlbumsOfArtist('Van Halen').then(function (data) {
-		console.log("Albums by 'Van Halen': ");
-		console.log(data);
-	});
-	getSongsOfAlbum('The Best of Both Worlds').then(function (data) {
-		console.log("Songs in 'The Best of Both Worlds': ");
-		console.log(data);
 	});
 	return promise1;
 }
@@ -52,10 +83,20 @@ function getGenres() {
 			success: function success(result) {
 				resolve(result);
 			},
-			error: function error(_error2) {
-				console.log("GET Error " + _error2);
-				reject(_error2);
-			}
+			error: function (_error2) {
+				function error(_x2) {
+					return _error2.apply(this, arguments);
+				}
+
+				error.toString = function () {
+					return _error2.toString();
+				};
+
+				return error;
+			}(function (error) {
+				console.log("GET Error " + error);
+				reject(error);
+			})
 		});
 	});
 	return promise1;
@@ -69,10 +110,20 @@ function getArtistOfGenre(genre) {
 			success: function success(result) {
 				resolve(result);
 			},
-			error: function error(_error3) {
-				console.log("GET Error " + _error3);
-				reject(_error3);
-			}
+			error: function (_error3) {
+				function error(_x3) {
+					return _error3.apply(this, arguments);
+				}
+
+				error.toString = function () {
+					return _error3.toString();
+				};
+
+				return error;
+			}(function (error) {
+				console.log("GET Error " + error);
+				reject(error);
+			})
 		});
 	});
 	return promise1;
@@ -86,10 +137,20 @@ function getAlbumsOfArtist(artist) {
 			success: function success(result) {
 				resolve(result);
 			},
-			error: function error(_error4) {
-				console.log("GET Error " + _error4);
-				reject(_error4);
-			}
+			error: function (_error4) {
+				function error(_x4) {
+					return _error4.apply(this, arguments);
+				}
+
+				error.toString = function () {
+					return _error4.toString();
+				};
+
+				return error;
+			}(function (error) {
+				console.log("GET Error " + error);
+				reject(error);
+			})
 		});
 	});
 	return promise1;
@@ -103,10 +164,20 @@ function getSongsOfAlbum(album) {
 			success: function success(result) {
 				resolve(result);
 			},
-			error: function error(_error5) {
-				console.log("GET Error " + _error5);
-				reject(_error5);
-			}
+			error: function (_error5) {
+				function error(_x5) {
+					return _error5.apply(this, arguments);
+				}
+
+				error.toString = function () {
+					return _error5.toString();
+				};
+
+				return error;
+			}(function (error) {
+				console.log("GET Error " + error);
+				reject(error);
+			})
 		});
 	});
 	return promise1;
@@ -120,10 +191,20 @@ function getSong(song) {
 			success: function success(result) {
 				resolve(result);
 			},
-			error: function error(_error6) {
-				console.log("GET Error " + _error6);
-				reject(_error6);
-			}
+			error: function (_error6) {
+				function error(_x6) {
+					return _error6.apply(this, arguments);
+				}
+
+				error.toString = function () {
+					return _error6.toString();
+				};
+
+				return error;
+			}(function (error) {
+				console.log("GET Error " + error);
+				reject(error);
+			})
 		});
 	});
 	return promise1;
@@ -143,10 +224,20 @@ function getSongUrlInAlbum(Song, Album) {
 				//console.log(result);
 				resolve(result);
 			},
-			error: function error(_error7) {
-				console.log("GET Error " + _error7);
-				reject(_error7);
-			}
+			error: function (_error7) {
+				function error(_x7) {
+					return _error7.apply(this, arguments);
+				}
+
+				error.toString = function () {
+					return _error7.toString();
+				};
+
+				return error;
+			}(function (error) {
+				console.log("GET Error " + error);
+				reject(error);
+			})
 		});
 	});
 	return promise1;
@@ -184,8 +275,6 @@ function updateMusicTable(artistObject) {
 	var artistList = document.getElementById('artist-list');
 	ReactDOM.render(music, artistList);
 }
-
-manualUpdate();
 
 function ArtistEntry(props) {
 	function selectArist() {
@@ -240,6 +329,18 @@ function ArtistEntry(props) {
 			)
 		);
 	}
+}
+
+function playSongFromAlbum(song, albumName) {
+	getSongUrlInAlbum(song.title, albumName).then(function (url) {
+		musicPlayer.src = url;
+		musicPlayer.load();
+		musicLabel.innerHTML = song.title;
+		musicPlayer.play();
+	}).catch(function (error) {
+		snackbarToast("Couldn't load file");
+		console.log(error);
+	});
 }
 
 function showAlbum(albumName, album, artist) {
@@ -305,44 +406,24 @@ function getSongUrl(songPath) {
 					resolve(result);
 				}
 			},
-			error: function error(_error8) {
-				console.log("Error " + _error8);
-				reject(_error8);
-			}
+			error: function (_error8) {
+				function error(_x8) {
+					return _error8.apply(this, arguments);
+				}
+
+				error.toString = function () {
+					return _error8.toString();
+				};
+
+				return error;
+			}(function (error) {
+				console.log("Error " + error);
+				reject(error);
+			})
 		});
 	});
 	return promise1;
 }
-
-//Custom playback slider stuff
-/*musicPlayer.ontimeupdate = function() {updateSlider()};
-
-function updateSlider() {
-	if (clicked == false) {
-		playbackSlider.MaterialSlider.change(musicPlayer.currentTime);
-	}
-}
-
-musicPlayer.ondurationchange = function() {
-	playbackSlider.max = musicPlayer.duration;
-	snackbarToast("Duration: " + musicPlayer.duration);
-};
-
-playbackSlider.addEventListener('change', (ev) => {
-	musicPlayer.currentTime = playbackSlider.value;
-});
-
-playbackSlider.addEventListener('seeking', (ev) => {
-	musicPlayer.currentTime = playbackSlider.value;
-});
-
-playbackSlider.addEventListener('mousedown', (ev) => {
-	clicked = true;
-});
-playbackSlider.addEventListener('mouseup', (ev) => {
-	clicked = false;
-});
-*/
 
 function snackbarToast(toast) {
 	var snackbar = document.getElementById('music-snackbar');

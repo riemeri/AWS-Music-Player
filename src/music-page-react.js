@@ -9,7 +9,43 @@ let musicPlayer = document.getElementById("music-player");
 let musicLabel = document.getElementById("music-label");
 let playbackSlider = document.getElementById("playback-slider");
 var clicked = false;
+var curUser = null;
 
+var config = {
+    apiKey: "AIzaSyCVaFP23xk3rYL8dtrNGgWbzwxONonXpX0",
+    authDomain: "music-auth-87594.firebaseapp.com",
+    databaseURL: "https://music-auth-87594.firebaseio.com",
+    projectId: "music-auth-87594",
+    storageBucket: "music-auth-87594.appspot.com",
+    messagingSenderId: "194541755164"
+};
+firebase.initializeApp(config);
+
+//On change of auth state, get user info or return home if no one is logged in
+firebase.auth().onAuthStateChanged(function(user) {
+	if (user) {
+		curUser = user;
+		//console.log(user);
+		manualUpdate();
+	} else {
+		// No user is signed in.
+		window.location.href = "http://aws-web-hosting16.s3-website-us-east-1.amazonaws.com";
+	}
+});
+
+//Logout user (which triggers an auth state change, returning the user to the login page
+let logoutBtn = document.getElementById('logout');
+logoutBtn.addEventListener('click', (ev) => { 
+	firebase.auth().signOut().then(() => {
+	}).catch(err => {
+		alert('Error: ' + err.message);
+		console.log(error);
+	});
+}, false);
+
+function validateUser(user) {
+	return true;
+}
 
 function getMusicList() {
 	var promise1 = new Promise(function (resolve, reject) {
@@ -26,21 +62,6 @@ function getMusicList() {
 				reject(error);
 			}
 		});
-	});
-	getGenres().then((data) => {
-		console.log("Genres: " + data);
-	});
-	getArtistOfGenre('Rock').then((data) => {
-		console.log("Artists in genre 'Rock': ");
-		console.log(data);
-	});
-	getAlbumsOfArtist('Van Halen').then((data) => {
-		console.log("Albums by 'Van Halen': ");
-		console.log(data);
-	});
-	getSongsOfAlbum('The Best of Both Worlds').then((data) => {
-		console.log("Songs in 'The Best of Both Worlds': ");
-		console.log(data);
 	});
 	return promise1;
 }
@@ -189,9 +210,6 @@ function updateMusicTable(artistObject) {
 }
 
 
-manualUpdate();
-
-
 function ArtistEntry(props) {
 	function selectArist() {
 		currentArtist = props.artist;
@@ -229,6 +247,19 @@ function ArtistEntry(props) {
 		</div>
 		);
 	}
+}
+
+function playSongFromAlbum(song, albumName) {
+	getSongUrlInAlbum(song.title, albumName).then((url) => {
+		musicPlayer.src = url;
+		musicPlayer.load();
+		musicLabel.innerHTML = song.title;
+		musicPlayer.play();
+	})
+	.catch(function(error) {
+		snackbarToast("Couldn't load file");
+		console.log(error);
+	});
 }
 
 function showAlbum(albumName, album, artist) {
@@ -292,36 +323,6 @@ function getSongUrl(songPath) {
 	});
 	return promise1;
 }
-
-//Custom playback slider stuff
-/*musicPlayer.ontimeupdate = function() {updateSlider()};
-
-function updateSlider() {
-	if (clicked == false) {
-		playbackSlider.MaterialSlider.change(musicPlayer.currentTime);
-	}
-}
-
-musicPlayer.ondurationchange = function() {
-	playbackSlider.max = musicPlayer.duration;
-	snackbarToast("Duration: " + musicPlayer.duration);
-};
-
-playbackSlider.addEventListener('change', (ev) => {
-	musicPlayer.currentTime = playbackSlider.value;
-});
-
-playbackSlider.addEventListener('seeking', (ev) => {
-	musicPlayer.currentTime = playbackSlider.value;
-});
-
-playbackSlider.addEventListener('mousedown', (ev) => {
-	clicked = true;
-});
-playbackSlider.addEventListener('mouseup', (ev) => {
-	clicked = false;
-});
-*/
 
 function snackbarToast(toast) {
 	var snackbar = document.getElementById('music-snackbar');

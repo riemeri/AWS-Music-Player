@@ -158,3 +158,37 @@
 .title-label {
 	top: 4px;
 }
+
+.form-button-left {
+	margin-right: 20px;
+}
+
+.form-login {
+	margin-left: auto;
+	margin-right: auto;
+	max-width: 604px;
+}
+
+.button-box {
+	margin-top: 10px;
+}
+
+.login-area {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	max-width: 198px;
+}
+
+.login-container {
+	border-radius: 2px;
+    padding: 52px calc(3% + 5px) 54px;
+    margin-bottom: 10px;
+    margin-left: auto;
+	margin-right: auto;
+	display: block;
+}
+
+.login-banner {
+	text-align: center;
+}

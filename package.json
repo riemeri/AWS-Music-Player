@@ -2,7 +2,7 @@
   "name": "aws-music-player",
   "version": "1.0.0",
   "description": "A web music player powered by AWS",
-  "main": "index.js",
+  "main": "public/login.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,6 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "babel-cli": "^6.26.0",
-    "babel-preset-react-app": "^3.1.2"
+    "babel-preset-react-app": "^3.1.2",
+    "firebase": "^5.8.5",
+    "firebaseui": "^3.5.2"
   }
 }
