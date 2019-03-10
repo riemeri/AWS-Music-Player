@@ -5,6 +5,8 @@ const Url = "http://3.88.49.153:3000";
 let currentArtist = null;
 let currentAlbum;
 let currentMusicList = null;
+let currentGenre = null;
+let currentSong = null;
 let musicPlayer = document.getElementById("music-player");
 let musicLabel = document.getElementById("music-label");
 let playbackSlider = document.getElementById("playback-slider");
@@ -25,8 +27,7 @@ firebase.initializeApp(config);
 firebase.auth().onAuthStateChanged(function(user) {
 	if (user) {
 		curUser = user;
-		//console.log(user);
-		manualUpdate();
+		updateCategoryTable();
 	} else {
 		// No user is signed in.
 		window.location.href = "http://aws-web-hosting16.s3-website-us-east-1.amazonaws.com";
@@ -174,130 +175,134 @@ function getSongUrlInAlbum(Song, Album) {
 	return promise1;
 }
 
-function manualUpdate() {
-	getMusicList().then(function(musicList) {
-		if (musicList != null) {
-			currentMusicList = musicList;
-			updateMusicTable(musicList);
-		}
-	})
-	.catch(function(error) {
-		console.log(error);
-	});
-}
-
-function quickUpdate() {
-	if (currentMusicList != null) {
-		updateMusicTable(currentMusicList);
-	}
-	else {
-		snackbarToast("No current music list");
-	}
-}
-
-function updateMusicTable(artistObject) {
-	var artistArray = Object.entries(artistObject);
-	//console.log(artistArray);
-	if (currentArtist == null) {
-		currentArtist = artistArray[0][0];
-	}
-	const music = artistArray.map((artist) => {
-		return <ArtistEntry artist={artist[0]} albumNames={artist[1].albumNames} albums={artist[1].albums}/>;
-	});
-
-	var artistList = document.getElementById('artist-list');
-	ReactDOM.render(music, artistList);
-}
-
-
-function ArtistEntry(props) {
-	function selectArist() {
-		currentArtist = props.artist;
-		quickUpdate();
-	}
-	//console.log(props.albumNames);
-
-	const albumList = props.albumNames.map((album) => {
-		function doShowAlbum() {
-			currentAlbum = album;
-			showAlbum(album, props.albums[album], props.artist);
-		}
-		return (
-			<li className="list-item mdl-list__item" key={album}>
-				<button onClick={doShowAlbum} className="album-button mdl-button mdl-js-button mdl-js-ripple-effect">
-					{album}
+function updateCategoryTable() {
+	getGenres().then(function(genres) {
+		console.log(genres);
+		const reactElement = genres.map((genre) => {
+			function doShowGenre() {
+				//SHOW Genre
+				currentGenre = genre;
+				showGenre(genre);
+			}
+			
+			return <li className="genre-item mdl-list__item" key={genre}>
+				<button onClick={doShowGenre} className="album-button mdl-button mdl-js-button mdl-js-ripple-effect">
+					{genre}
 				</button>
-			</li> )
+			</li>
+		});
+		
+		var genreList = document.getElementById('genre-list');
+		ReactDOM.render(reactElement, genreList);
 	});
-
-	if (props.artist == currentArtist) {
-		return (
-			<div className="cat-card mdl-card mdl-shadow--2dp" key={props.artist}>
-				<h5 style={{marginLeft: '14px'}}>{props.artist}</h5>
-				<div className="mdl-card__actions mdl-card--border">
-					<ul className="album-list">{albumList}</ul>
-				</div>
-			</div>
-		);
-	}
-	else {
-		return (
-		<div onClick={selectArist} className="cat-card mdl-card mdl-shadow--2dp" style={{cursor: 'pointer'}} key={props.artist}>
-			<h5 style={{margin:'19px 14px'}}>{props.artist}</h5>
-		</div>
-		);
-	}
 }
+
+function showGenre(genre) {
+	getArtistOfGenre(genre).then(function(artists) {
+		const artistList = artists.map((artist) => {
+			function getArtist() {
+				currentArtist = artist;
+				showArtist(artist);
+			}
+
+			return (
+				<li className="list-item mdl-list__item" key={artist}>
+					<button onClick={getArtist} className="song-button mdl-button mdl-js-button mdl-js-ripple-effect">
+						{artist}
+					</button>
+				</li>
+			)
+		});
+		
+		const reactElement = (
+			<div key={genre + "-page"}>
+				<span className="mdl-card__title-text">{genre + " Artists"}</span>
+				<ul className="song-list mdl-list mdl-card__actions mdl-card--border">
+					{artistList}
+				</ul>
+			</div>	
+		);
+
+		var mainDisplay = document.getElementById('main-display');
+		ReactDOM.render(reactElement, mainDisplay);
+	});
+}
+
+function showArtist(artist) {
+	getAlbumsOfArtist(artist).then(function(albums) {
+		const albumList = albums.map((album) => {
+			function getAlbum() {
+				currentAlbum = album;
+				showAlbum(album, artist);
+			}
+
+			return (
+				<li className="list-item mdl-list__item" key={album}>
+					<button onClick={getAlbum} className="song-button mdl-button mdl-js-button mdl-js-ripple-effect">
+						{album}
+					</button>
+				</li>
+			)
+		});
+		
+		const reactElement = (
+			<div key={artist + "-page"}>
+				<span className="mdl-card__title-text">{artist + " Albums"}</span>
+				<ul className="song-list mdl-list mdl-card__actions mdl-card--border">
+					{albumList}
+				</ul>
+			</div>	
+		);
+
+		var mainDisplay = document.getElementById('main-display');
+		ReactDOM.render(reactElement, mainDisplay);
+	});
+}
+
+function showAlbum(album, artist) {
+	getSongsOfAlbum(album).then(function(songs) {
+		const songList = songs.map((song) => {
+			function playSong() {
+				playSongFromAlbum(song, album);
+			}
+
+			return (
+				<li className="list-item mdl-list__item" key={song}>
+					<button onClick={playSong} className="song-button mdl-button mdl-js-button mdl-js-ripple-effect">
+						<i className="material-icons mdl-list__item-icon" style={{marginRight: '18px'}}>library_music</i>
+						{song}
+					</button>
+				</li>
+			)
+		});
+		
+		const reactElement = (
+			<div key={album + "-page"}>
+				<span className="mdl-card__title-text">{album + " - " + artist}</span>
+				<ul className="song-list mdl-list mdl-card__actions mdl-card--border">
+					{songList}
+				</ul>
+			</div>	
+		);
+
+		var mainDisplay = document.getElementById('main-display');
+		ReactDOM.render(reactElement, mainDisplay);
+	});
+}
+
 
 function playSongFromAlbum(song, albumName) {
-	getSongUrlInAlbum(song.title, albumName).then((url) => {
+	getSongUrlInAlbum(song, albumName).then((url) => {
 		musicPlayer.src = url;
 		musicPlayer.load();
-		musicLabel.innerHTML = song.title;
+		musicLabel.innerHTML = song;
+		currentSong = song;
 		musicPlayer.play();
 	})
 	.catch(function(error) {
 		snackbarToast("Couldn't load file");
 		console.log(error);
 	});
-}
-
-function showAlbum(albumName, album, artist) {
-	const songList = album.map((song) => {
-		function playSong() {
-			getSongUrlInAlbum(song.title, albumName).then((url) => {
-				musicPlayer.src = url;
-				musicPlayer.load();
-				musicLabel.innerHTML = song.title;
-				musicPlayer.play();
-			})
-			.catch(function(error) {
-				snackbarToast("Couldn't load file");
-				console.log(error);
-			});
-		}
-
-		return (
-			<li className="list-item mdl-list__item" key={song.path}>
-				<button onClick={playSong} className="song-button mdl-button mdl-js-button mdl-js-ripple-effect">
-					<i className="material-icons mdl-list__item-icon" style={{marginRight: '18px'}}>library_music</i>
-					{song.title}
-				</button>
-			</li>
-		)
-	});
-
-	const albumElement = (
-		<div key={albumName}>
-			<span className="mdl-card__title-text">{albumName + " - " + artist}</span>
-			<ul className="song-list mdl-list mdl-card__actions mdl-card--border">
-				{songList}
-			</ul>
-		</div>
-	);
-
-	var songDisplay = document.getElementById('song-display');
-	ReactDOM.render(albumElement, songDisplay);
 }
 
 function getSongUrl(songPath) {

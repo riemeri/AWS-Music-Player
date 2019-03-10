@@ -13,14 +13,14 @@
 
 #audio-playback {
 	position: absolute;
-    bottom: 28px;
+    bottom: 14px;
     width: auto;
     right: 16px;
     left: 16px;
 }
 
 #music-player {
-	width: 1500px;
+	width: -webkit-fill-available;
     max-width: 100%;
 }
 
@@ -30,8 +30,8 @@
 }
 
 .body-main {
-	margin-top: -39.5vh;
 	flex-shrink: 0;
+	background-color: lightslategray;
 }
 
 .body-container {
@@ -63,6 +63,15 @@
 	margin-bottom: 10px;
 	min-height: fit-content;
 	display: block;
+}
+
+.cat-list {
+	padding-left: 8px;
+    margin-top: 4px;
+}
+
+.category-item {
+	margin-top: 6px;
 }
 
 .list-box {
@@ -102,6 +111,20 @@
 	margin-left: auto;
 	margin-right: auto;
 	max-width: 604px;
+}
+
+.genre-button {
+    text-transform: inherit;
+    text-align: -webkit-left;
+    height: 24px;
+    line-height: 10px;
+    width: 99%;
+}
+
+.genre-item {
+	line-height: 0px;
+    min-height: 32px;
+    padding: 0px;
 }
 
 .login-area {
@@ -144,7 +167,16 @@
 
 #song-display {
 	position: inherit;
-    margin-bottom: 86px;
+}
+
+#playback-display {
+	position: fixed;
+    margin-left: 11px;
+    bottom: -12px;
+    margin-right: 28px;
+    background-color: #f1f3f4;
+    min-height: 114px;
+    width: calc(100% - 22px);
 }
 
 .song-button {

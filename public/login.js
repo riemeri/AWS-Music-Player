@@ -63,13 +63,11 @@ signUp.addEventListener('click', (ev) => {
 //Opens pop-up for google login
 let googleLogin = document.getElementById('googleLogin');
 googleLogin.addEventListener('click', () => {
-	//TODO: Handle Google auth here.
     var googleProvider = new firebase.auth.GoogleAuthProvider();
 	firebase.auth().signInWithPopup(googleProvider).then(function(result) {
 		console.log(result);
 		var user = result.user;
 		if (user.metadata.creationTime == user.metadata.lastSignInTime) {
-			//POST save-user
 			var userData = {
 				id: user.uid,
 				name: user.displayName,
