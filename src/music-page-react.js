@@ -34,7 +34,7 @@ firebase.auth().onAuthStateChanged(function(user) {
 	} else {
 		// No user is signed in.
 		window.location.href = "http://aws-web-hosting16.s3-website-us-east-1.amazonaws.com";
-		//updateCategoryTable();
+		//updateCategoryTable(); //for testing
 	}
 });
 
@@ -76,11 +76,15 @@ function getGenres() {
 		$.ajax({
 			url: Url + "/genres",
 			type:"GET",
+			data: {
+				uid: curUser.uid
+			},
 			success: function(result) {
 				resolve(result);
 			},
-			error: function(error){
-				console.log(`GET Error ${error}`);
+			error: function(err){
+				console.log(`GET Error:`);
+				console.log(err);
 				reject(error);
 			}
 		});
@@ -144,6 +148,9 @@ function getSong(song) {
 		$.ajax({
 			url: Url + "/song?song=" + song,
 			type:"GET",
+			data: {
+				uid: curUser.uid
+			},
 			success: function(result) {
 				resolve(result);
 			},
@@ -163,7 +170,8 @@ function getSongUrlInAlbum(Song, Album) {
 			type:"GET",
 			data: {
 				song: Song,
-				album: Album
+				album: Album,
+				uid: curUser.uid
 			},
 			success: function(result) {
 				//console.log("GET Resonse: ")
@@ -181,7 +189,6 @@ function getSongUrlInAlbum(Song, Album) {
 
 function updateCategoryTable() {
 	getGenres().then(function(genres) {
-		console.log(genres);
 		const reactElement = genres.map((genre) => {
 			function doShowGenre() {
 				currentGenre = genre;
