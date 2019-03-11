@@ -29,6 +29,11 @@
 	padding-left: 12px;
 }
 
+.back-button {
+	position: absolute;
+    right: 18px;
+}
+
 .body-main {
 	flex-shrink: 0;
 	background-color: lightslategray;
@@ -88,6 +93,12 @@
 .list-item {
 	padding: 0px 10px;
     min-height: 31px;
+}
+
+.login-field {
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
 }
 
 .body-layout {
@@ -162,7 +173,7 @@
 }
 
 .song-list {
-	width: 80%;
+	width: 90%;
 }
 
 #song-display {

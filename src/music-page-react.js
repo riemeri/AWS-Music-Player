@@ -3,10 +3,13 @@
 const Url = "http://3.88.49.153:3000";
 
 let currentArtist = null;
-let currentAlbum;
+let selectedAlbum;
+let playingAlbum;
 let currentMusicList = null;
 let currentGenre = null;
 let currentSong = null;
+let currentSongs = [];
+let songNumber = 0;
 let musicPlayer = document.getElementById("music-player");
 let musicLabel = document.getElementById("music-label");
 let playbackSlider = document.getElementById("playback-slider");
@@ -31,6 +34,7 @@ firebase.auth().onAuthStateChanged(function(user) {
 	} else {
 		// No user is signed in.
 		window.location.href = "http://aws-web-hosting16.s3-website-us-east-1.amazonaws.com";
+		//updateCategoryTable();
 	}
 });
 
@@ -180,7 +184,6 @@ function updateCategoryTable() {
 		console.log(genres);
 		const reactElement = genres.map((genre) => {
 			function doShowGenre() {
-				//SHOW Genre
 				currentGenre = genre;
 				showGenre(genre);
 			}
@@ -232,7 +235,7 @@ function showArtist(artist) {
 	getAlbumsOfArtist(artist).then(function(albums) {
 		const albumList = albums.map((album) => {
 			function getAlbum() {
-				currentAlbum = album;
+				selectedAlbum = album;
 				showAlbum(album, artist);
 			}
 
@@ -244,9 +247,16 @@ function showArtist(artist) {
 				</li>
 			)
 		});
+
+		function goBack() {
+			showGenre(currentGenre);
+		}
 		
 		const reactElement = (
 			<div key={artist + "-page"}>
+				<button onClick={goBack} className="back-button mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--colored">
+					<i className="material-icons">arrow_back</i>
+				</button>
 				<span className="mdl-card__title-text">{artist + " Albums"}</span>
 				<ul className="song-list mdl-list mdl-card__actions mdl-card--border">
 					{albumList}
@@ -261,8 +271,10 @@ function showArtist(artist) {
 
 function showAlbum(album, artist) {
 	getSongsOfAlbum(album).then(function(songs) {
-		const songList = songs.map((song) => {
+		const songList = songs.map((song, index) => {
 			function playSong() {
+				songNumber = index;
+				currentSongs = songs;
 				playSongFromAlbum(song, album);
 			}
 
@@ -274,10 +286,18 @@ function showAlbum(album, artist) {
 					</button>
 				</li>
 			)
+			i += 1;
 		});
+
+		function goBack() {
+			showArtist(currentArtist);
+		}
 		
 		const reactElement = (
 			<div key={album + "-page"}>
+				<button onClick={goBack} className="back-button mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--colored">
+					<i className="material-icons">arrow_back</i>
+				</button>
 				<span className="mdl-card__title-text">{album + " - " + artist}</span>
 				<ul className="song-list mdl-list mdl-card__actions mdl-card--border">
 					{songList}
@@ -297,6 +317,7 @@ function playSongFromAlbum(song, albumName) {
 		musicPlayer.load();
 		musicLabel.innerHTML = song;
 		currentSong = song;
+		playingAlbum = albumName;
 		musicPlayer.play();
 	})
 	.catch(function(error) {
@@ -304,6 +325,14 @@ function playSongFromAlbum(song, albumName) {
 		console.log(error);
 	});
 }
+
+musicPlayer.onended = function() {
+	if (currentSongs.length > songNumber + 1) {
+		songNumber += 1;
+		var nextSong = currentSongs[songNumber];
+		playSongFromAlbum(nextSong, playingAlbum);
+	}
+};
 
 function getSongUrl(songPath) {
 	var songUrl = Url + '/' + songPath;

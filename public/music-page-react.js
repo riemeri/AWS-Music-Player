@@ -3,10 +3,13 @@
 var Url = "http://3.88.49.153:3000";
 
 var currentArtist = null;
-var currentAlbum = void 0;
+var selectedAlbum = void 0;
+var playingAlbum = void 0;
 var currentMusicList = null;
 var currentGenre = null;
 var currentSong = null;
+var currentSongs = [];
+var songNumber = 0;
 var musicPlayer = document.getElementById("music-player");
 var musicLabel = document.getElementById("music-label");
 var playbackSlider = document.getElementById("playback-slider");
@@ -31,6 +34,7 @@ firebase.auth().onAuthStateChanged(function (user) {
 	} else {
 		// No user is signed in.
 		window.location.href = "http://aws-web-hosting16.s3-website-us-east-1.amazonaws.com";
+		//updateCategoryTable();
 	}
 });
 
@@ -249,7 +253,6 @@ function updateCategoryTable() {
 		console.log(genres);
 		var reactElement = genres.map(function (genre) {
 			function doShowGenre() {
-				//SHOW Genre
 				currentGenre = genre;
 				showGenre(genre);
 			}
@@ -313,7 +316,7 @@ function showArtist(artist) {
 	getAlbumsOfArtist(artist).then(function (albums) {
 		var albumList = albums.map(function (album) {
 			function getAlbum() {
-				currentAlbum = album;
+				selectedAlbum = album;
 				showAlbum(album, artist);
 			}
 
@@ -328,9 +331,22 @@ function showArtist(artist) {
 			);
 		});
 
+		function goBack() {
+			showGenre(currentGenre);
+		}
+
 		var reactElement = React.createElement(
 			"div",
 			{ key: artist + "-page" },
+			React.createElement(
+				"button",
+				{ onClick: goBack, className: "back-button mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--colored" },
+				React.createElement(
+					"i",
+					{ className: "material-icons" },
+					"arrow_back"
+				)
+			),
 			React.createElement(
 				"span",
 				{ className: "mdl-card__title-text" },
@@ -350,8 +366,10 @@ function showArtist(artist) {
 
 function showAlbum(album, artist) {
 	getSongsOfAlbum(album).then(function (songs) {
-		var songList = songs.map(function (song) {
+		var songList = songs.map(function (song, index) {
 			function playSong() {
+				songNumber = index;
+				currentSongs = songs;
 				playSongFromAlbum(song, album);
 			}
 
@@ -369,11 +387,25 @@ function showAlbum(album, artist) {
 					song
 				)
 			);
+			i += 1;
 		});
+
+		function goBack() {
+			showArtist(currentArtist);
+		}
 
 		var reactElement = React.createElement(
 			"div",
 			{ key: album + "-page" },
+			React.createElement(
+				"button",
+				{ onClick: goBack, className: "back-button mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--colored" },
+				React.createElement(
+					"i",
+					{ className: "material-icons" },
+					"arrow_back"
+				)
+			),
 			React.createElement(
 				"span",
 				{ className: "mdl-card__title-text" },
@@ -397,12 +429,21 @@ function playSongFromAlbum(song, albumName) {
 		musicPlayer.load();
 		musicLabel.innerHTML = song;
 		currentSong = song;
+		playingAlbum = albumName;
 		musicPlayer.play();
 	}).catch(function (error) {
 		snackbarToast("Couldn't load file");
 		console.log(error);
 	});
 }
+
+musicPlayer.onended = function () {
+	if (currentSongs.length > songNumber + 1) {
+		songNumber += 1;
+		var nextSong = currentSongs[songNumber];
+		playSongFromAlbum(nextSong, playingAlbum);
+	}
+};
 
 function getSongUrl(songPath) {
 	var songUrl = Url + '/' + songPath;
