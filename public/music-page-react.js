@@ -3,6 +3,7 @@
 var Url = "http://3.88.49.153:3000";
 
 var currentArtist = null;
+var playingArtist = null;
 var selectedAlbum = void 0;
 var playingAlbum = void 0;
 var currentMusicList = null;
@@ -46,10 +47,6 @@ logoutBtn.addEventListener('click', function (ev) {
 		console.log(error);
 	});
 }, false);
-
-function validateUser(user) {
-	return true;
-}
 
 function getMusicList() {
 	var promise1 = new Promise(function (resolve, reject) {
@@ -256,6 +253,35 @@ function getSongUrlInAlbum(Song, Album) {
 	return promise1;
 }
 
+function postSongPlay(artist, album, song) {
+	console.log("POST for song: " + song);
+	$.ajax({
+		type: "POST",
+		url: "http://3.88.49.153:3000/play",
+		data: {
+			artist: artist,
+			album: album,
+			song: song
+		},
+		success: function success(result) {
+			console.log(result);
+		},
+		error: function (_error8) {
+			function error(_x8) {
+				return _error8.apply(this, arguments);
+			}
+
+			error.toString = function () {
+				return _error8.toString();
+			};
+
+			return error;
+		}(function (error) {
+			console.log("POST Error " + error);
+		})
+	});
+}
+
 function updateCategoryTable() {
 	getGenres().then(function (genres) {
 		var reactElement = genres.map(function (genre) {
@@ -377,7 +403,7 @@ function showAlbum(album, artist) {
 			function playSong() {
 				songNumber = index;
 				currentSongs = songs;
-				playSongFromAlbum(song, album);
+				playSongFromAlbum(artist, album, song);
 			}
 
 			return React.createElement(
@@ -430,14 +456,16 @@ function showAlbum(album, artist) {
 	});
 }
 
-function playSongFromAlbum(song, albumName) {
+function playSongFromAlbum(artist, albumName, song) {
 	getSongUrlInAlbum(song, albumName).then(function (url) {
 		musicPlayer.src = url;
 		musicPlayer.load();
 		musicLabel.innerHTML = song;
 		currentSong = song;
+		playingArtist = artist;
 		playingAlbum = albumName;
 		musicPlayer.play();
+		postSongPlay(artist, albumName, song);
 	}).catch(function (error) {
 		snackbarToast("Couldn't load file");
 		console.log(error);
@@ -448,7 +476,7 @@ musicPlayer.onended = function () {
 	if (currentSongs.length > songNumber + 1) {
 		songNumber += 1;
 		var nextSong = currentSongs[songNumber];
-		playSongFromAlbum(nextSong, playingAlbum);
+		playSongFromAlbum(playingArtist, playingAlbum, nextSong);
 	}
 };
 
@@ -466,13 +494,13 @@ function getSongUrl(songPath) {
 					resolve(result);
 				}
 			},
-			error: function (_error8) {
-				function error(_x8) {
-					return _error8.apply(this, arguments);
+			error: function (_error9) {
+				function error(_x9) {
+					return _error9.apply(this, arguments);
 				}
 
 				error.toString = function () {
-					return _error8.toString();
+					return _error9.toString();
 				};
 
 				return error;

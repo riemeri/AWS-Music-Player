@@ -3,6 +3,7 @@
 const Url = "http://3.88.49.153:3000";
 
 let currentArtist = null;
+let playingArtist = null;
 let selectedAlbum;
 let playingAlbum;
 let currentMusicList = null;
@@ -47,10 +48,6 @@ logoutBtn.addEventListener('click', (ev) => {
 		console.log(error);
 	});
 }, false);
-
-function validateUser(user) {
-	return true;
-}
 
 function getMusicList() {
 	var promise1 = new Promise(function (resolve, reject) {
@@ -187,6 +184,25 @@ function getSongUrlInAlbum(Song, Album) {
 	return promise1;
 }
 
+function postSongPlay(artist, album, song) {
+	console.log("POST for song: " + song);
+	$.ajax({
+		type:"POST",
+		url: "http://3.88.49.153:3000/play",
+		data: {
+			artist: artist,
+			album: album,
+			song: song
+		},
+		success: function(result) {
+			console.log(result);
+		},
+		error: function(error){
+			console.log(`POST Error ${error}`);
+		}
+	});
+}
+
 function updateCategoryTable() {
 	getGenres().then(function(genres) {
 		const reactElement = genres.map((genre) => {
@@ -282,7 +298,7 @@ function showAlbum(album, artist) {
 			function playSong() {
 				songNumber = index;
 				currentSongs = songs;
-				playSongFromAlbum(song, album);
+				playSongFromAlbum(artist, album, song);
 			}
 
 			return (
@@ -318,14 +334,16 @@ function showAlbum(album, artist) {
 }
 
 
-function playSongFromAlbum(song, albumName) {
+function playSongFromAlbum(artist, albumName, song) {
 	getSongUrlInAlbum(song, albumName).then((url) => {
 		musicPlayer.src = url;
 		musicPlayer.load();
 		musicLabel.innerHTML = song;
 		currentSong = song;
+		playingArtist = artist;
 		playingAlbum = albumName;
 		musicPlayer.play();
+		postSongPlay(artist, albumName, song);
 	})
 	.catch(function(error) {
 		snackbarToast("Couldn't load file");
@@ -337,7 +355,7 @@ musicPlayer.onended = function() {
 	if (currentSongs.length > songNumber + 1) {
 		songNumber += 1;
 		var nextSong = currentSongs[songNumber];
-		playSongFromAlbum(nextSong, playingAlbum);
+		playSongFromAlbum(playingArtist, playingAlbum, nextSong);
 	}
 };
 
