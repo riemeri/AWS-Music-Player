@@ -185,7 +185,6 @@ function getSongUrlInAlbum(Song, Album) {
 }
 
 function postSongPlay(artist, album, song) {
-	console.log("POST for song: " + song);
 	$.ajax({
 		type:"POST",
 		url: "http://3.88.49.153:3000/play",
@@ -195,7 +194,7 @@ function postSongPlay(artist, album, song) {
 			song: song
 		},
 		success: function(result) {
-			console.log(result);
+			//console.log(result);
 		},
 		error: function(error){
 			console.log(`POST Error ${error}`);
